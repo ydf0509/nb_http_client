@@ -48,6 +48,8 @@ import time
 import decorator_libs
 import requests
 import urllib3
+import pycurl
+from io import BytesIO
 from nb_http_client import ObjectPool, HttpOperator
 from threadpool_executor_shrink_able import BoundedThreadPoolExecutor
 
@@ -75,47 +77,33 @@ def test_by_urllib3():
     print(resp.data)
 
 
+def test_by_pycurl():
+    # 这个号称c库，性能是最差的
+    buffer = BytesIO()
+    c = pycurl.Curl()
+    c.setopt(c.URL, 'http://127.0.0.1:5678/')
+    c.setopt(c.WRITEDATA, buffer)
+    c.perform()
+    c.close()
+    body = buffer.getvalue()
+    print(body.decode())
+
+
 def test_by_nb_http_client():
     with http_pool.get() as conn:  # type: typing.Union[HttpOperator,HTTPConnection]  # http对象池的请求速度暴击requests的session和直接requests.get
         r1 = conn.request_and_getresponse('GET', '/')
         print(r1.text[:10], )
 
 
+
+
 if __name__ == '__main__':
     with decorator_libs.TimerContextManager():
         for x in range(30000):
             # time.sleep(5)  # 这是测试是否是是智能节制新建对象，如果任务不密集，不需要新建那么多对象。
-            thread_pool.submit(test_by_urllib3, )  # TOOD 这里换成不同的函数来测试，然后在控制台搜索时分秒就能看到每一秒的响应个数了。
+            thread_pool.submit(test_by_pycurl, )  # TOOD 这里换成不同的函数来测试，然后在控制台搜索时分秒就能看到每一秒的响应个数了。
         thread_pool.shutdown()
     time.sleep(10000)  # 这个可以测试nb_http_client的连接长时间不使用，能自动摧毁
-
-```
-
-### 3.2.2 asyncio + aiohttp 请求
-
-```python
-# coding:utf-8
-import asyncio
-import aiohttp
-import time
-import nb_log
-sh = asyncio.Semaphore(50)
-ss= aiohttp.ClientSession()
-
-async def req():
-    async with sh:
-        async with ss.request('get',url='http://127.0.0.1:5678/') as resp:
-            text = await resp.text()
-            print(text)
-
-if __name__ == '__main__':
-    # 开启事件循环
-    t1 = time.time()
-    loop = asyncio.get_event_loop()
-    tasks = [asyncio.ensure_future(req()) for _ in range(30000)]
-    loop.run_until_complete(asyncio.wait(tasks))
-    loop.close()
-    print(time.time() - t1)
 
 
 ```
