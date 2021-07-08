@@ -34,6 +34,7 @@ def test_by_urllib3():
 
 
 def test_by_pycurl():
+    # 这个号称c库，性能是最差的
     buffer = BytesIO()
     c = pycurl.Curl()
     c.setopt(c.URL, 'http://127.0.0.1:5678/')
