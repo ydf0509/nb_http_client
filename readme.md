@@ -15,7 +15,7 @@ e5 2678v3 主频很差，cpu架构很落后，如果用最新的13代i9超频最
 线程池 + urllib3    1070次每秒
 线程池 + nb_http_client  2500次每秒
 asyncio + aiohttp    1480次每秒
-线程池 + pycurl 600次每秒
+线程池 + pycurl 30次每秒
 ```
 
 
