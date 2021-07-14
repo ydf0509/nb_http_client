@@ -1,5 +1,7 @@
 # nb_http_client 是 python 史上性能最强的http客户端
 
+## 0. 安装 pip install nb_http_client
+
 ## 1.测试比较环境为 win10 + python3.7 + 2.5ghz主频
 
 ```
